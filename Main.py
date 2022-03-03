@@ -24,3 +24,4 @@ if __name__ == "__main__":  # if program runs Main directly this is the entry po
     block = wallet.createBlock(pool.transactions, 'lastHash', 1)
     signatureValid = Wallet.signatureValid(block.payload(), block.signature, wallet.publicKeyString())
     print(signatureValid)
+    pprint.pprint(block.toJson())
