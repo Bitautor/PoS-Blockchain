@@ -1,4 +1,5 @@
 import copy
+from operator import ge
 import time
 
 
@@ -12,6 +13,13 @@ class Block:
         self.blockCount = blockCount
         self.timestamp = time.time()
         self.signature = ""
+
+    # generate first block in blockchain
+    @staticmethod
+    def genesis():
+        genesisBlock = Block([], 'genesisHash', 'genesis', 0)
+        genesisBlock.timestamp = 0 # hardcoded timestamp: the blockchain state of another node wouldn't accepted because of different genesis block timestamps => different lastHash values
+        return genesisBlock
 
     def toJson(self):
         # generate output string manually (not using __dict__ here, because we want to output the whole transactions list)

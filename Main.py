@@ -1,27 +1,10 @@
-from inspect import signature
-from Wallet import Wallet
-from TransactionPool import TransactionPool
-from Block import Block
-import pprint
+from Node import Node
+import sys
 
 if __name__ == "__main__":  # if program runs Main directly this is the entry point
 
-    # variables for testing reasons
-    sender = "sender"
-    receiver = "receiver"
-    amount = 1
-    type = "TRANSFER"
+    ip = sys.argv[1] # program start param1 (param0 = program)
+    port = int(sys.argv[2]) # program start param2
 
-    wallet = Wallet()
-    fraudulentWallet = Wallet()
-    pool = TransactionPool()
-
-    transaction = wallet.createTransaction(receiver, amount, type)
-
-    if pool.transactionExists(transaction) == False:
-        pool.addTransaction(transaction)
-
-    block = wallet.createBlock(pool.transactions, 'lastHash', 1)
-    signatureValid = Wallet.signatureValid(block.payload(), block.signature, wallet.publicKeyString())
-    print(signatureValid)
-    pprint.pprint(block.toJson())
+    node = Node(ip, port)
+    node.startP2P()
