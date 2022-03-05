@@ -22,7 +22,8 @@ class SocketCommunication(Node):
             # this node is NOT the INITIAL NODE (first node in the network)
             self.connect_with_node("localhost", 10001)  # CONNECT WITH OTHER NODE
 
-    def startSocketCommunication(self):
+    def startSocketCommunication(self, node):
+        self.node = node  # store the node -> use node.handleTransaction() method
         # open port for socket communication
         self.start()  # start self (p2p node) as socket communication
         self.peerDiscoveryHandler.start()  # start PeerDiscoveryHandler -> 2 Threads
@@ -42,8 +43,11 @@ class SocketCommunication(Node):
 
     def node_message(self, connected_node, message):
         message = BlockchainUtils.decode(json.dumps(message))
-        if message.messageType == 'DISCOVERY':
+        if message.messageType == "DISCOVERY":
             self.peerDiscoveryHandler.handleMessage(message)
+        elif message.messageType == "TRANSACTION":
+            transaction = message.data
+            self.node.handleTransaction(transaction)
 
     def send(self, receiver, message):
         # interface for sending message to a node
