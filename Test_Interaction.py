@@ -5,7 +5,8 @@ import requests  # HTTP library
 
 # TESTING: interaction with Blockchain API (-> sending HTTP requests using requests lib)
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # ENTRY POINT
+
     bob = Wallet()
     alice = Wallet()
     exchange = Wallet()

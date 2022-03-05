@@ -8,7 +8,7 @@ from NodeAPI import NodeAPI
 
 
 class Node:
-    def __init__(self, ip, port):
+    def __init__(self, ip, port, key=None):
         # api
         self.api = None
         # p2p communication
@@ -19,6 +19,9 @@ class Node:
         self.transactionPool = TransactionPool()
         self.wallet = Wallet()
         self.blockchain = Blockchain()
+        if key is not None:
+            # create nodes based on serialized pem key files
+            self.wallet.fromKey(key)
 
     def startP2P(self):
         self.p2p = SocketCommunication(self.ip, self.port)
@@ -37,9 +40,22 @@ class Node:
         signatureValid = Wallet.signatureValid(data, signature, signerPublicKey)
         transactionExists = self.transactionPool.transactionExists(transaction)
         if not transactionExists and signatureValid:
-            # 1. add transaction to local transaction pool
+            # 1. ADD transaction to local transaction pool
             self.transactionPool.addTransaction(transaction)
-            # 2. propagate transaction through the network via p2p message
+            # 2. PROPAGATE transaction through the network via p2p message
             message = Message(self.p2p.socketConnector, "TRANSACTION", transaction)
             encodedMessage = BlockchainUtils.encode(message)
             self.p2p.broadcast(encodedMessage)  # broadcast encoded transaction message
+            # 3. FORGING required check - whether to generate new block or not
+            forgingRequired = self.transactionPool.forgingRequired()
+            if forgingRequired:
+                self.forge()
+
+    def forge(self):
+        # get next forger and do forging
+        forger = self.blockchain.nextForger()
+        if forger == self.wallet.publicKeyString():
+            # current wallet is the next forger
+            print("I am the next forger")
+        else:
+            print("I am NOT the next forger")

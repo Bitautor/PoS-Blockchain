@@ -1,12 +1,14 @@
 from Block import Block
 from BlockchainUtils import BlockchainUtils
 from AccountModel import AccountModel
+from ProofOfStake import ProofOfStake
 
 
 class Blockchain:
     def __init__(self):
         self.blocks = [Block.genesis()]
         self.accountModel = AccountModel()
+        self.pos = ProofOfStake()
 
     def addBlock(self, block):
         self.executeTransactions(block.transactions)
@@ -61,6 +63,16 @@ class Blockchain:
             self.executeTransaction(transaction)
 
     def executeTransaction(self, transaction):
+        if transaction == "STAKE":
+            # special transaction to deposit a stake
+            sender = transaction.senderPublicKey
+            receiver = transaction.receiverPublicKey
+            # check if sender is equal to receiver because staking is only possible at the own wallet
+            if sender == receiver:
+                amount = transaction.amount  # amount of tokens to be staked
+                self.pos.update(sender, amount)
+                self.accountModel.updateBalance(sender, -amount)
+
         sender = transaction.senderPublicKey
         receiver = transaction.receiverPublicKey
         amount = transaction.amount
@@ -68,3 +80,8 @@ class Blockchain:
         self.accountModel.updateBalance(sender, -amount)
         # update receivers balance
         self.accountModel.updateBalance(receiver, amount)
+
+    def nextForger(self):
+        lastBlockHash = BlockchainUtils.hash(self.blocks[-1].payload()).hexdigest()
+        nextForger = self.pos.forger(lastBlockHash)
+        return nextForger

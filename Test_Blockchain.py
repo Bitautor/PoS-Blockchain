@@ -4,7 +4,10 @@ from Blockchain import Blockchain
 from BlockchainUtils import BlockchainUtils
 import pprint
 
-if __name__ == "__main__":  # if program runs Main directly this is the entry point
+
+# TESTING: interaction with Blockchain (create transaction, create block, manage transaction pool)
+
+if __name__ == "__main__":  # ENTRY POINT
 
     blockchain = Blockchain()
     pool = TransactionPool()

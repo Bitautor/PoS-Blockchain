@@ -22,3 +22,14 @@ class TransactionPool:
             if insert == True:
                 newPoolTransactions.append(poolTransaction)
         self.transactions = newPoolTransactions
+
+    def forgingRequired(self):
+
+        NUMBER_OF_TRANSACTIONS_PER_BLOCK = 1  # create block every transaction
+        # TODO in order to collect transactions up to a certain threshold value alter value
+
+        # checks if threshold for creating new block is reached
+        if len(self.transactions) >= NUMBER_OF_TRANSACTIONS_PER_BLOCK:
+            return True
+        else:
+            return False
