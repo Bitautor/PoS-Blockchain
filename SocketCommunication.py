@@ -48,6 +48,14 @@ class SocketCommunication(Node):
         elif message.messageType == "TRANSACTION":
             transaction = message.data
             self.node.handleTransaction(transaction)
+        elif message.messageType == "BLOCK":
+            block = message.data
+            self.node.handleBlock(block)
+        elif message.messageType == "BLOCKCHAIN_REQUEST":
+            self.node.handleBlockchainRequest(connected_node)
+        elif message.messageType == "BLOCKCHAIN_RESPONSE":
+            blockchain = message.data
+            self.node.handleBlockchain(blockchain)
 
     def send(self, receiver, message):
         # interface for sending message to a node

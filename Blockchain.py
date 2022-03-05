@@ -45,7 +45,7 @@ class Blockchain:
             if self.transactionCovered(transaction):
                 coveredTransactions.append(transaction)
             else:
-                print("Transaction is not covered bei sender")
+                print("Transaction is not covered by sender")
         return coveredTransactions
 
     def transactionCovered(self, transaction):
@@ -85,3 +85,41 @@ class Blockchain:
         lastBlockHash = BlockchainUtils.hash(self.blocks[-1].payload()).hexdigest()
         nextForger = self.pos.forger(lastBlockHash)
         return nextForger
+
+    def createBlock(self, transactionsFromPool, forgerWallet):
+        coveredTransactions = self.getCoveredTransactionSet(transactionsFromPool)
+        self.executeTransactions(coveredTransactions)
+        newBlock = forgerWallet.createBlock(
+            coveredTransactions,
+            BlockchainUtils.hash(self.blocks[-1].payload()).hexdigest(),
+            len(self.blocks),
+        )
+        self.blocks.append(newBlock)
+        return newBlock
+
+    def transactionExists(self, transaction):
+        # iterate through the blockchain
+        for block in self.blocks:
+            for blockTransaction in block.transactions:
+                if transaction.equals(blockTransaction):
+                    # transaction already exists in the blockchain
+                    return True
+        return False  # new transaction - not in pool yet
+
+    def forgerValid(self, block):
+        # determine the next forger based on the state of own blockchain
+        forgerPublicKey = self.pos.forger(block.lastHash)
+        # compare with the proposed forger
+        proposedBlockForger = block.forger
+        if forgerPublicKey == proposedBlockForger:
+            return True
+        else:
+            return False
+
+    def transactionsValid(self, transactions):
+        coveredTransactions = self.getCoveredTransactionSet(transactions)
+        if len(coveredTransactions) == len(transactions):
+            # there were no additional (fraudulent) transactions added
+            return True
+        else:
+            return False
